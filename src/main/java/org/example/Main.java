@@ -22,15 +22,10 @@ public class Main {
         typeOfRate = userString.split(" ")[2];
         rate = new Rate(path);
 
-        switch (typeOfRate){
-            case "tomorrow":
-                rate.rateAverageForTomorrow();
-                break;
-            case "week" :
-                rate.rateAverageForWeek();
-                break;
-            default:
-                throw new IOException("Ошибка");
+        switch (typeOfRate) {
+            case "tomorrow" -> rate.rateAverageForTomorrow();
+            case "week" -> rate.rateAverageForWeek();
+            default -> throw new IOException("Ошибка");
         }
     }
 }
