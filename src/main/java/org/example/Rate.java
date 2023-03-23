@@ -1,5 +1,7 @@
 package org.example;
+
 import org.apache.commons.lang3.StringUtils;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -9,11 +11,11 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Rate {
-    private Path path;
+    private final Path path;
     private float average = 0;
-    private LocalDate date;
     private final DecimalFormat decfor = new DecimalFormat("0.00");
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
     private final DateTimeFormatter newDateFormatter = DateTimeFormatter.ofPattern("E dd.MM.yyyy");
@@ -22,29 +24,39 @@ public class Rate {
         this.path = Paths.get(path);
     }
 
+
+    public void rateValues(String typeOFRate) throws IOException {
+        switch (typeOFRate){
+            case "tomorrow" -> rateAverageForTomorrow();
+            case "week" -> rateAverageForWeek();
+            default -> throw new IOException("Ошибка");
+        }
+    }
+
     private String getLastDateFromFile() throws IOException {
-        return Files
-                .lines(path)
-                .skip(1)
-                .findFirst()
-                .map(x -> x.split(";")[1]).orElse(null).replace("\"", "");
+        try (Stream<String> csvStream = Files.lines(path)) {
+            return csvStream
+                    .skip(1)
+                    .findFirst()
+                    .map(x -> x.split(";")[1]).orElse(null);
+        }
     }
 
     private List<Float> getValues() throws IOException {
-        return Files
-                .lines(path)
-                .skip(1)
-                .limit(7)
-                .map(x -> Float.parseFloat(x.split(";")[2].replace("\"", "").replace(",", ".")))
-                .collect(Collectors.toList());
+        try (Stream<String> csvStream = Files.lines(path)) {
+            return csvStream.skip(1)
+                    .limit(7)
+                    .map(x -> Float.parseFloat(x.split(";")[2].replace("\"", "").replace(",", ".")))
+                    .collect(Collectors.toList());
+        }
     }
 
     private String getNewDate(int plusDays) throws IOException {
-        date = LocalDate.parse(getLastDateFromFile(), formatter).plusDays(plusDays);
+        LocalDate date = LocalDate.parse(getLastDateFromFile(), formatter).plusDays(plusDays);
         return StringUtils.capitalize(date.format(newDateFormatter));
     }
 
-    public void rateAverageForTomorrow() throws IOException {
+    private void rateAverageForTomorrow() throws IOException {
         List<Float> values = getValues();
         for (Float value : values) {
             average += value;
@@ -52,7 +64,7 @@ public class Rate {
         System.out.println(getNewDate(1) + " - " + decfor.format(average / 7));
     }
 
-    public void rateAverageForWeek() throws IOException {
+    private void rateAverageForWeek() throws IOException {
         List<Float> values = getValues();
         for (int index = 0; index < 7; index++) {
             average = 0;
@@ -64,4 +76,5 @@ public class Rate {
             System.out.println(getNewDate(index + 1) + " - " + decfor.format(average / 7));
         }
     }
+
 }
