@@ -15,18 +15,17 @@ public class UserInput {
         return inputStr;
     }
 
+    private void checkUserInput(String userInput) throws IOException {
+        if (!pattern.matcher(userInput).matches()) {
+            throw new IOException("Введена некорректная строка");
+        }
+    }
     protected String getPath(String userInput) {
         return userInput.split(" ")[1] + ".csv";
     }
 
     protected String getTypeOfRate(String userInput) {
         return userInput.split(" ")[2];
-    }
-
-    private void checkUserInput(String userInput) throws IOException {
-        if (!pattern.matcher(userInput).matches()) {
-            throw new IOException("Введена некорректная строка");
-        }
     }
 
 }
