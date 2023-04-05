@@ -15,21 +15,13 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Rate {
-    private final Path path;
+    private  final Path path;
     private float average = 0;
     private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("0.00");
     private static final int DAYS_A_WEEK = 7;
 
     public Rate(String path) {
         this.path = Paths.get(path);
-    }
-
-    public void rateValues(String typeOFRate) {
-        switch (typeOFRate) {
-            case Constants.TOMORROW -> rateAverageForTomorrow();
-            case Constants.WEEK -> rateAverageForWeek();
-            default -> throw new RuntimeException("Ошибка");
-        }
     }
 
     private String getLastDateFromFile() {
@@ -65,16 +57,18 @@ public class Rate {
         return StringUtils.capitalize(date.format(newDateFormatter));
     }
 
-    private void rateAverageForTomorrow() {
+    private String rateAverageForTomorrow() {
         List<Float> values = getValues();
         for (Float value : values) {
             average += value;
         }
-        System.out.println(getNewDate(1) + " - " + DECIMAL_FORMAT.format(average / DAYS_A_WEEK));
+        return getNewDate(1) + " - " + DECIMAL_FORMAT.format(average / DAYS_A_WEEK);
     }
 
-    private void rateAverageForWeek() {
+
+    private String rateAverageForWeek() {
         List<Float> values = getValues();
+        String stringToReturn = "";
         for (int index = 0; index < DAYS_A_WEEK; index++) {
             average = 0;
             for (Float value : values) {
@@ -82,7 +76,22 @@ public class Rate {
             }
             values.remove(values.size() - 1);
             values.add(0, (float) (Math.round((average / DAYS_A_WEEK) * 10000.0) / 10000.0));
-            System.out.println(getNewDate(index + 1) + " - " + DECIMAL_FORMAT.format(average / DAYS_A_WEEK));
+            stringToReturn += getNewDate(index + 1) + " - " + DECIMAL_FORMAT.format(average / DAYS_A_WEEK) + "\n";
         }
+        return stringToReturn;
+    }
+
+    public String rateValues(String typeOFRate) {
+        String returnText = null;
+        switch (typeOFRate) {
+            case Constants.TOMORROW -> {
+                returnText = rateAverageForTomorrow();
+            }
+            case Constants.WEEK -> {
+                returnText = rateAverageForWeek();
+            }
+            default -> throw new RuntimeException("Ошибка");
+        }
+        return returnText;
     }
 }

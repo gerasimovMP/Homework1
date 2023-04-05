@@ -1,11 +1,19 @@
 package org.example;
 
 
+import org.telegram.telegrambots.meta.TelegramBotsApi;
+import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
+
+
+
 public class Main {
     public static void main(String[] args) {
-        UserInputUtils userInputUtils = new UserInputUtils();
-        String userString = userInputUtils.getUserInput();
-        Rate rate = new Rate(userInputUtils.getPath(userString));
-        rate.rateValues(userInputUtils.getTypeOfRate(userString));
+        TelegramBotsApi telegramBotsApi;
+        try {
+            telegramBotsApi =  new TelegramBotsApi(DefaultBotSession.class);
+            telegramBotsApi.registerBot(new Bot());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
